@@ -35,7 +35,7 @@ export class StorageService {
       width: number;
       height: number;
       generatedAt: Date;
-    }
+    },
   ): Promise<UploadResult> {
     const fileName = this.generateFileName(symbol, metadata);
 
@@ -80,8 +80,8 @@ export class StorageService {
         size: imageBuffer.byteLength,
       });
       throw new StorageUploadError(
-        `Failed to upload chart image: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        error
+        `Failed to upload chart image: ${error instanceof Error ? error.message : "Unknown error"}`,
+        error,
       );
     }
   }
@@ -89,11 +89,7 @@ export class StorageService {
   /**
    * 保存されているチャート画像の一覧を取得
    */
-  async listChartImages(options?: {
-    symbol?: string;
-    limit?: number;
-    cursor?: string;
-  }): Promise<{
+  async listChartImages(options?: { symbol?: string; limit?: number; cursor?: string }): Promise<{
     images: Array<{
       fileName: string;
       publicUrl: string;
@@ -113,10 +109,10 @@ export class StorageService {
         prefix,
         limit: options?.limit || 50,
         cursor: options?.cursor,
-        include: ['httpMetadata', 'customMetadata'],
+        include: ["httpMetadata", "customMetadata"],
       });
 
-      const images = listResult.objects.map(obj => ({
+      const images = listResult.objects.map((obj) => ({
         fileName: obj.key,
         publicUrl: this.buildPublicUrl(obj.key),
         size: obj.size,
@@ -137,8 +133,8 @@ export class StorageService {
     } catch (error) {
       logger.error("Failed to list chart images", { error, options });
       throw new StorageListError(
-        `Failed to list chart images: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        error
+        `Failed to list chart images: ${error instanceof Error ? error.message : "Unknown error"}`,
+        error,
       );
     }
   }
@@ -179,8 +175,8 @@ export class StorageService {
     } catch (error) {
       logger.error("Failed to get chart image", { error, fileName });
       throw new StorageGetError(
-        `Failed to get chart image: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        error
+        `Failed to get chart image: ${error instanceof Error ? error.message : "Unknown error"}`,
+        error,
       );
     }
   }
@@ -197,8 +193,8 @@ export class StorageService {
     } catch (error) {
       logger.error("Failed to delete chart image", { error, fileName });
       throw new StorageDeleteError(
-        `Failed to delete chart image: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        error
+        `Failed to delete chart image: ${error instanceof Error ? error.message : "Unknown error"}`,
+        error,
       );
     }
   }
@@ -220,13 +216,13 @@ export class StorageService {
         const listResult = await this.r2Client.listObjects({
           limit: 1000,
           cursor,
-          include: ['httpMetadata'],
+          include: ["httpMetadata"],
         });
 
-        const oldImages = listResult.objects.filter(obj => obj.uploaded < cutoffDate);
+        const oldImages = listResult.objects.filter((obj) => obj.uploaded < cutoffDate);
 
         if (oldImages.length > 0) {
-          const keysToDelete = oldImages.map(obj => obj.key);
+          const keysToDelete = oldImages.map((obj) => obj.key);
           await this.r2Client.deleteObjects(keysToDelete);
           deletedCount += oldImages.length;
 
@@ -244,8 +240,8 @@ export class StorageService {
     } catch (error) {
       logger.error("Failed to cleanup old images", { error, olderThanDays });
       throw new StorageCleanupError(
-        `Failed to cleanup old images: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        error
+        `Failed to cleanup old images: ${error instanceof Error ? error.message : "Unknown error"}`,
+        error,
       );
     }
   }
@@ -261,7 +257,7 @@ export class StorageService {
       width: number;
       height: number;
       generatedAt: Date;
-    }
+    },
   ): string {
     const timestamp = metadata.generatedAt.toISOString().replace(/[:.]/g, "-");
     const cleanSymbol = symbol.replace(/[^a-zA-Z0-9]/g, "_");
@@ -296,7 +292,7 @@ export class StorageService {
       width: number;
       height: number;
       generatedAt: Date;
-    }
+    },
   ): Record<string, string> {
     return {
       symbol,

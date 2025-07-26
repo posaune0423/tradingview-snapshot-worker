@@ -76,8 +76,8 @@ export class ChartService {
 
       logger.error("Failed to create chart snapshot", { error, request });
       throw new ChartGenerationError(
-        `Chart snapshot creation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        error
+        `Chart snapshot creation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+        error,
       );
     }
   }
@@ -90,7 +90,7 @@ export class ChartService {
     const symbolValidation = this.chartImageClient.validateSymbolFormat(request.symbol);
     if (!symbolValidation.isValid) {
       throw new ChartValidationError(
-        `Invalid symbol format: ${request.symbol}. Expected format for Solana DEX: DRIFT:SOL-PERP, RAYDIUM:SOL/USDC, etc.`
+        `Invalid symbol format: ${request.symbol}. Expected format for Solana DEX: DRIFT:SOL-PERP, RAYDIUM:SOL/USDC, etc.`,
       );
     }
 
@@ -104,7 +104,7 @@ export class ChartService {
     const maxPixelCount = CHART_CONFIG.maxSize.width * CHART_CONFIG.maxSize.height;
     if (pixelCount > maxPixelCount) {
       throw new ChartValidationError(
-        `Image size is too large. Maximum pixel count is ${maxPixelCount.toLocaleString()}`
+        `Image size is too large. Maximum pixel count is ${maxPixelCount.toLocaleString()}`,
       );
     }
 
@@ -119,18 +119,16 @@ export class ChartService {
    * Solana DEX固有のシンボル検証
    */
   private validateSolanaSymbol(symbol: string): void {
-    const [exchange, pair] = symbol.split(':');
+    const [exchange, pair] = symbol.split(":");
 
     if (!exchange || !pair) {
-      throw new ChartValidationError(
-        `Invalid symbol format: ${symbol}. Expected format: EXCHANGE:PAIR`
-      );
+      throw new ChartValidationError(`Invalid symbol format: ${symbol}. Expected format: EXCHANGE:PAIR`);
     }
 
     // サポートされている取引所かチェック
     if (!SUPPORTED_SOLANA_EXCHANGES.includes(exchange.toUpperCase())) {
       throw new ChartValidationError(
-        `Unsupported exchange: ${exchange}. Supported exchanges: ${SUPPORTED_SOLANA_EXCHANGES.join(', ')}`
+        `Unsupported exchange: ${exchange}. Supported exchanges: ${SUPPORTED_SOLANA_EXCHANGES.join(", ")}`,
       );
     }
   }
@@ -139,23 +137,23 @@ export class ChartService {
    * シンボルからトークンを抽出
    */
   private extractTokenFromSymbol(symbol: string): string {
-    const [, pair] = symbol.split(':');
-    if (!pair) return 'SOL'; // デフォルト
+    const [, pair] = symbol.split(":");
+    if (!pair) return "SOL"; // デフォルト
 
     // PERP形式の場合 (例: SOL-PERP)
-    if (pair.includes('-PERP')) {
-      return pair.replace('-PERP', '');
+    if (pair.includes("-PERP")) {
+      return pair.replace("-PERP", "");
     }
 
     // ペア形式の場合 (例: SOL/USDC)
-    if (pair.includes('/')) {
-      const firstToken = pair.split('/')[0];
-      return firstToken || 'SOL';
+    if (pair.includes("/")) {
+      const firstToken = pair.split("/")[0];
+      return firstToken || "SOL";
     }
 
     // その他の場合は最初の部分を返す
     const firstMatch = pair.split(/[^A-Z]/)[0];
-    return firstMatch || 'SOL';
+    return firstMatch || "SOL";
   }
 
   /**
@@ -182,7 +180,7 @@ export class ChartService {
    * サポートされているインターバルの一覧を取得
    */
   getSupportedIntervals(): Array<{ value: string; label: string; category: string }> {
-    return CHART_INTERVALS.map(interval => ({
+    return CHART_INTERVALS.map((interval) => ({
       value: interval.value,
       label: interval.label,
       category: interval.category,

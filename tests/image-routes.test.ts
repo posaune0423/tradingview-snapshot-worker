@@ -248,17 +248,13 @@ describe("Image Routes Helper Functions", () => {
 
       mockStorageService.uploadChartImage.mockResolvedValue(mockResult);
 
-      const result = await mockStorageService.uploadChartImage(
-        new ArrayBuffer(1000),
-        "BTCUSDT",
-        {
-          interval: "1D",
-          theme: "dark",
-          width: 800,
-          height: 600,
-          generatedAt: new Date(),
-        }
-      );
+      const result = await mockStorageService.uploadChartImage(new ArrayBuffer(1000), "BTCUSDT", {
+        interval: "1D",
+        theme: "dark",
+        width: 800,
+        height: 600,
+        generatedAt: new Date(),
+      });
 
       expect(result).toBe(mockResult);
       expect(mockStorageService.uploadChartImage).toHaveBeenCalled();

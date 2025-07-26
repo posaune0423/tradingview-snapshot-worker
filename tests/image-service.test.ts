@@ -1,14 +1,9 @@
 import { expect, test } from "bun:test";
 
 test("ImageService - should validate service requirements", () => {
-  const expectedMethods = [
-    "getImageList",
-    "getImageStatistics",
-    "deleteImage",
-    "cleanupOldImages"
-  ];
+  const expectedMethods = ["getImageList", "getImageStatistics", "deleteImage", "cleanupOldImages"];
 
-  expectedMethods.forEach(methodName => {
+  expectedMethods.forEach((methodName) => {
     expect(methodName).toBeDefined();
     expect(typeof methodName).toBe("string");
   });
@@ -49,7 +44,7 @@ test("ImageService - should validate image list options", () => {
 test("ImageService - should validate cleanup parameters", () => {
   const validDays = [1, 7, 30, 90, 365];
 
-  validDays.forEach(days => {
+  validDays.forEach((days) => {
     expect(days).toBeGreaterThan(0);
     expect(Number.isInteger(days)).toBe(true);
   });

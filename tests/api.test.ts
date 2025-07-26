@@ -37,7 +37,7 @@ test("GET / should return health check", async () => {
 
   expect(res.status).toBe(200);
 
-  const json = await res.json() as any;
+  const json = (await res.json()) as any;
   expect(json.message).toBe("TradingView Chart Snapshot API");
   expect(json.endpoints).toHaveProperty("image");
   expect(json.endpoints).toHaveProperty("images");
@@ -51,7 +51,7 @@ test("GET /image/list should return image list structure", async () => {
   // but we can test the response structure
   expect([200, 500]).toContain(res.status);
 
-  const json = await res.json() as any;
+  const json = (await res.json()) as any;
   expect(json).toHaveProperty("success");
 });
 
@@ -62,7 +62,7 @@ test("GET /image/stats should return stats structure", async () => {
   // Note: This will return an error due to missing R2 bucket in test env
   expect([200, 500]).toContain(res.status);
 
-  const json = await res.json() as any;
+  const json = (await res.json()) as any;
   expect(json).toHaveProperty("success");
 });
 
@@ -78,7 +78,7 @@ test("POST /image should return error without proper environment", async () => {
   // Should return 500 due to missing R2 bucket configuration
   expect(res.status).toBe(500);
 
-  const json = await res.json() as any;
+  const json = (await res.json()) as any;
   expect(json.success).toBe(false);
   expect(json.error).toBeDefined();
 });
@@ -90,7 +90,7 @@ test("DELETE /image/test.png should return error without proper environment", as
   // Should return 500 due to missing R2 bucket configuration
   expect(res.status).toBe(500);
 
-  const json = await res.json() as any;
+  const json = (await res.json()) as any;
   expect(json.success).toBe(false);
   expect(json.error).toBeDefined();
 });
@@ -107,7 +107,7 @@ test("POST /image/cleanup should return error without proper environment", async
   // Should return 500 due to missing R2 bucket configuration
   expect(res.status).toBe(500);
 
-  const json = await res.json() as any;
+  const json = (await res.json()) as any;
   expect(json.success).toBe(false);
   expect(json.error).toBeDefined();
 });

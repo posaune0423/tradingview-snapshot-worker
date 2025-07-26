@@ -1,7 +1,10 @@
 import type {
+  ChartDrawing,
   ChartImageOptions,
   ChartImageRequest,
   ChartImageResult,
+  ChartIndicator,
+  ChartStyle,
 } from "../types/chart-image";
 import { ChartImageApiError, ChartImageValidationError } from "../types/chart-image";
 import { logger } from "../utils/logger";
@@ -9,6 +12,8 @@ import { logger } from "../utils/logger";
 /**
  * Chart-IMG APIとの通信を担当する腐敗防止層
  * 外部Chart-IMG APIの詳細を隠蔽し、アプリケーション固有のインターフェースを提供
+ *
+ * @see https://doc.chart-img.com/#introduction
  */
 export class ChartImageClient {
   private readonly baseUrl = "https://api.chart-img.com/v2/tradingview/advanced-chart";
@@ -23,17 +28,14 @@ export class ChartImageClient {
   /**
    * TradingViewチャートの画像を生成
    */
-  async generateChartImage(
-    request: ChartImageRequest,
-    options?: ChartImageOptions
-  ): Promise<ChartImageResult> {
+  async generateChartImage(request: ChartImageRequest, options?: ChartImageOptions): Promise<ChartImageResult> {
     this.validateRequest(request);
 
     logger.info("Generating chart image", {
       symbol: request.symbol,
       interval: request.interval,
       dimensions: `${request.width}x${request.height}`,
-      theme: request.theme
+      theme: request.theme,
     });
 
     try {
@@ -58,7 +60,7 @@ export class ChartImageClient {
       logger.error("Failed to generate chart image", {
         error,
         symbol: request.symbol,
-        interval: request.interval
+        interval: request.interval,
       });
 
       if (error instanceof ChartImageApiError) {
@@ -66,8 +68,8 @@ export class ChartImageClient {
       }
 
       throw new ChartImageApiError(
-        `Chart image generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        500
+        `Chart image generation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+        500,
       );
     }
   }
@@ -96,17 +98,7 @@ export class ChartImageClient {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        const errorText = await response.text().catch(() => "Unknown error");
-        logger.error("Chart-IMG API request failed", {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorText,
-        });
-
-        throw new ChartImageApiError(
-          `Chart-IMG API error: ${response.status} ${response.statusText} - ${errorText}`,
-          response.status
-        );
+        await this.handleApiError(response);
       }
 
       return response;
@@ -117,11 +109,52 @@ export class ChartImageClient {
         throw error;
       }
 
-      if (error instanceof Error && error.name === 'AbortError') {
+      if (error instanceof Error && error.name === "AbortError") {
         throw new ChartImageApiError(`Request timeout after ${timeoutMs}ms`, 408);
       }
 
       throw error;
+    }
+  }
+
+  /**
+   * API エラーレスポンスを処理
+   */
+  private async handleApiError(response: Response): Promise<never> {
+    let errorData: any;
+
+    try {
+      const contentType = response.headers.get("content-type");
+      if (contentType?.includes("application/json")) {
+        errorData = await response.json();
+      } else {
+        errorData = { message: await response.text() };
+      }
+    } catch {
+      errorData = { message: "Unknown error" };
+    }
+
+    logger.error("Chart-IMG API request failed", {
+      status: response.status,
+      statusText: response.statusText,
+      error: errorData,
+    });
+
+    // Chart-IMG API v2/v3 error format handling
+    if (Array.isArray(errorData)) {
+      // Validation errors array format
+      const validationErrors = errorData.map((err) => `${err.param}: ${err.msg}`).join(", ");
+      throw new ChartImageApiError(`Validation error: ${validationErrors}`, response.status, errorData);
+    } else if (errorData.message) {
+      // Standard error message format
+      throw new ChartImageApiError(errorData.message, response.status, errorData);
+    } else {
+      // Fallback error format
+      throw new ChartImageApiError(
+        `Chart-IMG API error: ${response.status} ${response.statusText}`,
+        response.status,
+        errorData,
+      );
     }
   }
 
@@ -138,7 +171,7 @@ export class ChartImageClient {
       format: options?.format || "png",
     };
 
-    // オプションパラメータを追加
+    // Basic optional parameters
     if (options?.backgroundColor) {
       body.backgroundColor = options.backgroundColor;
     }
@@ -149,6 +182,79 @@ export class ChartImageClient {
 
     if (options?.locale) {
       body.locale = options.locale;
+    }
+
+    // Chart-IMG API v2 specific parameters
+    if (options?.indicators && options.indicators.length > 0) {
+      body.indicators = options.indicators;
+    }
+
+    if (options?.drawings && options.drawings.length > 0) {
+      body.drawings = options.drawings;
+    }
+
+    if (options?.style) {
+      body.style = options.style;
+    }
+
+    if (options?.scalesFontSize !== undefined) {
+      body.scalesFontSize = options.scalesFontSize;
+    }
+
+    if (options?.showLegendValues !== undefined) {
+      body.showLegendValues = options.showLegendValues;
+    }
+
+    if (options?.showSeriesLastValue !== undefined) {
+      body.showSeriesLastValue = options.showSeriesLastValue;
+    }
+
+    if (options?.showPriceLine !== undefined) {
+      body.showPriceLine = options.showPriceLine;
+    }
+
+    if (options?.showSeriesOHLC !== undefined) {
+      body.showSeriesOHLC = options.showSeriesOHLC;
+    }
+
+    if (options?.showBarChange !== undefined) {
+      body.showBarChange = options.showBarChange;
+    }
+
+    if (options?.mainPaneHeight !== undefined) {
+      body.mainPaneHeight = options.mainPaneHeight;
+    }
+
+    if (options?.priceRange) {
+      body.priceRange = options.priceRange;
+    }
+
+    // Navigation parameters (shiftLeft/shiftRight deprecated in favor of moveLeft/moveRight)
+    if (options?.moveLeft !== undefined) {
+      body.moveLeft = options.moveLeft;
+    } else if (options?.shiftLeft !== undefined) {
+      // Fallback for backward compatibility
+      body.shiftLeft = options.shiftLeft;
+    }
+
+    if (options?.moveRight !== undefined) {
+      body.moveRight = options.moveRight;
+    } else if (options?.shiftRight !== undefined) {
+      // Fallback for backward compatibility
+      body.shiftRight = options.shiftRight;
+    }
+
+    if (options?.zoomIn !== undefined) {
+      body.zoomIn = options.zoomIn;
+    }
+
+    if (options?.zoomOut !== undefined) {
+      body.zoomOut = options.zoomOut;
+    }
+
+    // Custom watermark (ULTRA and ENTERPRISE plans only)
+    if (options?.watermark) {
+      body.watermark = options.watermark;
     }
 
     return body;
@@ -162,7 +268,7 @@ export class ChartImageClient {
       throw new ChartImageValidationError("Symbol is required");
     }
 
-    if (!/^[A-Z0-9_:.]+$/i.test(request.symbol)) {
+    if (!/^[A-Z0-9_:./-]+$/i.test(request.symbol)) {
       throw new ChartImageValidationError("Invalid symbol format");
     }
 
@@ -189,13 +295,34 @@ export class ChartImageClient {
 
   /**
    * インターバルの有効性を検証
+   * Chart-IMG API documentation に基づいて更新
    */
   private isValidInterval(interval: string): boolean {
     const validIntervals = [
-      "1", "3", "5", "15", "30", "45", // 分
-      "1H", "2H", "3H", "4H", "6H", "8H", "12H", // 時間
-      "1D", "2D", "3D", // 日
-      "1W", "1M" // 週・月
+      // 分単位
+      "1",
+      "3",
+      "5",
+      "15",
+      "30",
+      "45",
+      // 時間単位 (Chart-IMG APIは6h, 12hをサポート)
+      "1H",
+      "2H",
+      "3H",
+      "4H",
+      "6H",
+      "8H",
+      "12H",
+      "6h",
+      "12h", // Chart-IMG API documentation (July 20, 2024 update)
+      // 日単位
+      "1D",
+      "2D",
+      "3D",
+      // 週・月単位
+      "1W",
+      "1M",
     ];
 
     return validIntervals.includes(interval);
@@ -205,8 +332,8 @@ export class ChartImageClient {
    * サポートされているシンボル形式を検証
    */
   validateSymbolFormat(symbol: string): { isValid: boolean; exchange?: string; pair?: string } {
-    // 形式: EXCHANGE:SYMBOL (例: BINANCE:BTCUSDT)
-    const match = symbol.match(/^([A-Z0-9_]+):([A-Z0-9_]+)$/i);
+    // 形式: EXCHANGE:SYMBOL (例: BINANCE:BTCUSDT, RAYDIUM:SOL/USDC, DRIFT:SOL-PERP)
+    const match = symbol.match(/^([A-Z0-9_]+):([A-Z0-9_/-]+)$/i);
 
     if (!match) {
       return { isValid: false };
@@ -217,5 +344,79 @@ export class ChartImageClient {
       exchange: match[1],
       pair: match[2],
     };
+  }
+
+  /**
+   * Helper method to create chart indicators
+   * @see https://doc.chart-img.com/#tradingview-chart-indicators
+   */
+  static createIndicator(
+    name: string,
+    inputs?: Record<string, any>,
+    styles?: Record<string, any>,
+    pane?: number,
+  ): ChartIndicator {
+    return {
+      name,
+      inputs,
+      styles,
+      pane,
+    };
+  }
+
+  /**
+   * Helper method to create chart drawings
+   * @see https://doc.chart-img.com/#tradingview-chart-drawings
+   */
+  static createDrawing(
+    type: string,
+    points?: Array<{ time: number; price: number }>,
+    properties?: Record<string, any>,
+  ): ChartDrawing {
+    return {
+      type,
+      points,
+      properties,
+    };
+  }
+
+  /**
+   * Get list of supported chart styles
+   * @see https://doc.chart-img.com/#tradingview-chart-styles
+   */
+  static getSupportedStyles(): ChartStyle[] {
+    return ["bar", "candle", "line", "area", "heikin_ashi", "hollow_candle", "baseline", "hi_lo", "column"];
+  }
+
+  /**
+   * Get list of supported intervals
+   */
+  static getSupportedIntervals(): string[] {
+    return [
+      // 分単位
+      "1",
+      "3",
+      "5",
+      "15",
+      "30",
+      "45",
+      // 時間単位
+      "1H",
+      "2H",
+      "3H",
+      "4H",
+      "6H",
+      "8H",
+      "12H",
+      "6h",
+      "12h",
+      // 日単位
+      "1D",
+      "2D",
+      "3D",
+      // 週・月単位
+      "1W",
+      "1M",
+    ];
   }
 }

@@ -33,14 +33,9 @@ test("ChartService - should validate chart request structure", () => {
 });
 
 test("ChartService - should validate symbols", () => {
-  const validSymbols = [
-    "BINANCE:BTCUSDT",
-    "NASDAQ:AAPL",
-    "NYSE:TSLA",
-    "COINBASE:ETHUSD"
-  ];
+  const validSymbols = ["BINANCE:BTCUSDT", "NASDAQ:AAPL", "NYSE:TSLA", "COINBASE:ETHUSD"];
 
-  validSymbols.forEach(symbol => {
+  validSymbols.forEach((symbol) => {
     expect(symbol).toContain(":");
     expect(symbol.split(":")).toHaveLength(2);
     const [exchange, pair] = symbol.split(":");
@@ -52,7 +47,7 @@ test("ChartService - should validate symbols", () => {
 test("ChartService - should validate intervals", () => {
   const validIntervals = ["1m", "5m", "15m", "30m", "1h", "4h", "1D", "1W", "1M"];
 
-  validIntervals.forEach(interval => {
+  validIntervals.forEach((interval) => {
     expect(interval).toMatch(/^\d+[mhDWM]$/);
   });
 });
@@ -62,7 +57,7 @@ test("ChartService - should validate dimensions", () => {
     { width: 400, height: 300 },
     { width: 800, height: 600 },
     { width: 1200, height: 800 },
-    { width: 1920, height: 1080 }
+    { width: 1920, height: 1080 },
   ];
 
   validDimensions.forEach(({ width, height }) => {
@@ -78,7 +73,7 @@ test("ChartService - should validate dimensions", () => {
 test("ChartService - should validate theme options", () => {
   const validThemes = ["light", "dark"];
 
-  validThemes.forEach(theme => {
+  validThemes.forEach((theme) => {
     expect(["light", "dark"]).toContain(theme);
   });
 });
@@ -113,8 +108,8 @@ test("ChartService - should validate result structure", () => {
       interval: "1D",
       width: 800,
       height: 600,
-      theme: "dark"
-    }
+      theme: "dark",
+    },
   };
 
   expect(mockResult.imageBuffer).toBeInstanceOf(ArrayBuffer);

@@ -36,7 +36,7 @@ export class ImageService {
       });
 
       // ドメインモデルに変換
-      let images: ImageDetails[] = result.images.map(img => ({
+      let images: ImageDetails[] = result.images.map((img) => ({
         fileName: img.fileName,
         size: img.size,
         uploadedAt: img.uploadedAt,
@@ -64,8 +64,8 @@ export class ImageService {
     } catch (error) {
       logger.error("Failed to get image list", { error, options });
       throw new ImageListError(
-        `Failed to get image list: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        error
+        `Failed to get image list: ${error instanceof Error ? error.message : "Unknown error"}`,
+        error,
       );
     }
   }
@@ -117,7 +117,7 @@ export class ImageService {
       const byTheme: Record<string, number> = {};
       const byInterval: Record<string, number> = {};
 
-      allImages.forEach(img => {
+      allImages.forEach((img) => {
         if (img.metadata) {
           byTheme[img.metadata.theme] = (byTheme[img.metadata.theme] || 0) + 1;
           byInterval[img.metadata.interval] = (byInterval[img.metadata.interval] || 0) + 1;
@@ -125,8 +125,8 @@ export class ImageService {
       });
 
       // 最新・最古の画像
-      const sortedByDate = [...allImages].sort((a, b) =>
-        new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime()
+      const sortedByDate = [...allImages].sort(
+        (a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime(),
       );
 
       const statistics = {
@@ -149,8 +149,8 @@ export class ImageService {
     } catch (error) {
       logger.error("Failed to get image statistics", { error, symbol });
       throw new ImageStatisticsError(
-        `Failed to get image statistics: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        error
+        `Failed to get image statistics: ${error instanceof Error ? error.message : "Unknown error"}`,
+        error,
       );
     }
   }
@@ -180,8 +180,8 @@ export class ImageService {
     } catch (error) {
       logger.error("Failed to get image details", { error, fileName });
       throw new ImageDetailsError(
-        `Failed to get image details: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        error
+        `Failed to get image details: ${error instanceof Error ? error.message : "Unknown error"}`,
+        error,
       );
     }
   }
@@ -198,8 +198,8 @@ export class ImageService {
     } catch (error) {
       logger.error("Failed to delete image", { error, fileName });
       throw new ImageDeleteError(
-        `Failed to delete image: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        error
+        `Failed to delete image: ${error instanceof Error ? error.message : "Unknown error"}`,
+        error,
       );
     }
   }
@@ -222,8 +222,8 @@ export class ImageService {
     } catch (error) {
       logger.error("Failed to cleanup old images", { error, olderThanDays });
       throw new ImageCleanupError(
-        `Failed to cleanup old images: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        error
+        `Failed to cleanup old images: ${error instanceof Error ? error.message : "Unknown error"}`,
+        error,
       );
     }
   }
@@ -231,18 +231,20 @@ export class ImageService {
   /**
    * サポートされているシンボルの一覧を取得
    */
-  async getSupportedSymbols(): Promise<Array<{
-    symbol: string;
-    imageCount: number;
-    latestUpload: string;
-  }>> {
+  async getSupportedSymbols(): Promise<
+    Array<{
+      symbol: string;
+      imageCount: number;
+      latestUpload: string;
+    }>
+  > {
     logger.info("Getting supported symbols");
 
     try {
       const result = await this.getImageList({ limit: 1000 });
       const symbolMap = new Map<string, { count: number; latestUpload: string }>();
 
-      result.images.forEach(img => {
+      result.images.forEach((img) => {
         if (img.metadata?.symbol) {
           const existing = symbolMap.get(img.metadata.symbol);
           const uploadDate = img.uploadedAt;
@@ -275,8 +277,8 @@ export class ImageService {
     } catch (error) {
       logger.error("Failed to get supported symbols", { error });
       throw new ImageListError(
-        `Failed to get supported symbols: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        error
+        `Failed to get supported symbols: ${error instanceof Error ? error.message : "Unknown error"}`,
+        error,
       );
     }
   }
@@ -287,7 +289,7 @@ export class ImageService {
   private sortImages(
     images: ImageDetails[],
     sortBy: "uploadedAt" | "symbol" | "size",
-    sortOrder: "asc" | "desc"
+    sortOrder: "asc" | "desc",
   ): ImageDetails[] {
     return images.sort((a, b) => {
       let aValue: any, bValue: any;

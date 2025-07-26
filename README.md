@@ -237,6 +237,65 @@ curl -X POST https://your-worker.your-subdomain.workers.dev/snapshot \
 
 詳細は [Chart-IMG API ドキュメント](https://doc.chart-img.com/) を参照してください。
 
+### 高度なチャート機能
+
+Chart-IMG API v2の高度な機能をサポート：
+
+**インジケーター追加:**
+```json
+{
+  "symbol": "BINANCE:BTCUSDT",
+  "interval": "1H",
+  "width": 800,
+  "height": 600,
+  "theme": "dark",
+  "indicators": [
+    {
+      "name": "RSI",
+      "inputs": { "length": 14 },
+      "pane": 1
+    },
+    {
+      "name": "MACD",
+      "inputs": { "fast": 12, "slow": 26, "signal": 9 },
+      "pane": 2
+    }
+  ]
+}
+```
+
+**チャートスタイル:**
+```json
+{
+  "symbol": "NASDAQ:AAPL",
+  "interval": "1D",
+  "style": "candle",
+  "showSeriesLastValue": true,
+  "showPriceLine": true
+}
+```
+
+**価格範囲とナビゲーション:**
+```json
+{
+  "symbol": "FOREX:EURUSD",
+  "interval": "4H",
+  "priceRange": {
+    "from": 1.08,
+    "to": 1.12,
+    "margin": 0.01
+  },
+  "moveLeft": 50,
+  "zoomIn": 2
+}
+```
+
+サポートされている機能：
+- **チャートスタイル:** candle, bar, line, area, heikin_ashi, hollow_candle, baseline, hi_lo, column
+- **インジケーター:** RSI, MACD, Bollinger Bands, Moving Averages など50種類以上
+- **描画ツール:** Trend Line, Horizontal/Vertical Line, Fib Retracement など
+- **カスタマイズ:** 価格範囲、ズーム、ナビゲーション、フォントサイズ調整
+
 ## 技術スタック
 
 - **Runtime:** Cloudflare Workers

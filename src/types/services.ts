@@ -20,7 +20,7 @@ export interface ChartGenerationResult {
 export class ChartGenerationError extends Error {
   constructor(
     message: string,
-    public readonly originalError?: unknown
+    public readonly originalError?: unknown,
   ) {
     super(message);
     this.name = "ChartGenerationError";
@@ -54,7 +54,7 @@ export interface StorageMetadata {
 export class StorageUploadError extends Error {
   constructor(
     message: string,
-    public readonly originalError?: unknown
+    public readonly originalError?: unknown,
   ) {
     super(message);
     this.name = "StorageUploadError";
@@ -64,7 +64,7 @@ export class StorageUploadError extends Error {
 export class StorageListError extends Error {
   constructor(
     message: string,
-    public readonly originalError?: unknown
+    public readonly originalError?: unknown,
   ) {
     super(message);
     this.name = "StorageListError";
@@ -74,7 +74,7 @@ export class StorageListError extends Error {
 export class StorageGetError extends Error {
   constructor(
     message: string,
-    public readonly originalError?: unknown
+    public readonly originalError?: unknown,
   ) {
     super(message);
     this.name = "StorageGetError";
@@ -84,7 +84,7 @@ export class StorageGetError extends Error {
 export class StorageDeleteError extends Error {
   constructor(
     message: string,
-    public readonly originalError?: unknown
+    public readonly originalError?: unknown,
   ) {
     super(message);
     this.name = "StorageDeleteError";
@@ -94,7 +94,7 @@ export class StorageDeleteError extends Error {
 export class StorageCleanupError extends Error {
   constructor(
     message: string,
-    public readonly originalError?: unknown
+    public readonly originalError?: unknown,
   ) {
     super(message);
     this.name = "StorageCleanupError";
@@ -128,7 +128,7 @@ export interface ImageDetails {
 export class ImageListError extends Error {
   constructor(
     message: string,
-    public readonly originalError?: unknown
+    public readonly originalError?: unknown,
   ) {
     super(message);
     this.name = "ImageListError";
@@ -138,7 +138,7 @@ export class ImageListError extends Error {
 export class ImageStatisticsError extends Error {
   constructor(
     message: string,
-    public readonly originalError?: unknown
+    public readonly originalError?: unknown,
   ) {
     super(message);
     this.name = "ImageStatisticsError";
@@ -148,7 +148,7 @@ export class ImageStatisticsError extends Error {
 export class ImageDetailsError extends Error {
   constructor(
     message: string,
-    public readonly originalError?: unknown
+    public readonly originalError?: unknown,
   ) {
     super(message);
     this.name = "ImageDetailsError";
@@ -158,7 +158,7 @@ export class ImageDetailsError extends Error {
 export class ImageDeleteError extends Error {
   constructor(
     message: string,
-    public readonly originalError?: unknown
+    public readonly originalError?: unknown,
   ) {
     super(message);
     this.name = "ImageDeleteError";
@@ -168,7 +168,7 @@ export class ImageDeleteError extends Error {
 export class ImageCleanupError extends Error {
   constructor(
     message: string,
-    public readonly originalError?: unknown
+    public readonly originalError?: unknown,
   ) {
     super(message);
     this.name = "ImageCleanupError";

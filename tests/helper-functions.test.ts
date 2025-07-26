@@ -233,7 +233,7 @@ describe("Helper Functions for Image Routes", () => {
       expect(statusCode).toBe(500);
     });
 
-            test("should handle unknown error type", () => {
+    test("should handle unknown error type", () => {
       const error = { notAnError: true }; // Non-Error object
 
       // Simulate the logic from handleError with type checking
@@ -241,13 +241,13 @@ describe("Helper Functions for Image Routes", () => {
       let statusCode = 500;
 
       // Safe error handling - checking constructors and message property
-      if (error && typeof error === 'object' && 'name' in error && error.name === 'ChartValidationError') {
-        errorMessage = 'message' in error ? String(error.message) : "Validation error";
+      if (error && typeof error === "object" && "name" in error && error.name === "ChartValidationError") {
+        errorMessage = "message" in error ? String(error.message) : "Validation error";
         statusCode = 400;
-      } else if (error && typeof error === 'object' && 'name' in error && error.name === 'ChartGenerationError') {
-        errorMessage = 'message' in error ? String(error.message) : "Generation error";
+      } else if (error && typeof error === "object" && "name" in error && error.name === "ChartGenerationError") {
+        errorMessage = "message" in error ? String(error.message) : "Generation error";
         statusCode = 502;
-      } else if (error && typeof error === 'object' && 'name' in error && error.name === 'StorageUploadError') {
+      } else if (error && typeof error === "object" && "name" in error && error.name === "StorageUploadError") {
         errorMessage = "Failed to store chart image";
         statusCode = 503;
       } else if (error instanceof Error) {
@@ -370,20 +370,15 @@ describe("Configuration and Constants", () => {
   test("should validate interval formats", () => {
     const validIntervals = ["1m", "5m", "15m", "30m", "1h", "4h", "1D", "1W", "1M"];
 
-    validIntervals.forEach(interval => {
+    validIntervals.forEach((interval) => {
       expect(interval).toMatch(/^\d+[mhDWM]$/);
     });
   });
 
   test("should validate symbol formats", () => {
-    const validSymbols = [
-      "BINANCE:BTCUSDT",
-      "NASDAQ:AAPL",
-      "NYSE:TSLA",
-      "COINBASE:ETHUSD"
-    ];
+    const validSymbols = ["BINANCE:BTCUSDT", "NASDAQ:AAPL", "NYSE:TSLA", "COINBASE:ETHUSD"];
 
-    validSymbols.forEach(symbol => {
+    validSymbols.forEach((symbol) => {
       expect(symbol).toMatch(/^[A-Z]+:[A-Z]+$/);
       expect(symbol).toContain(":");
     });
@@ -392,7 +387,7 @@ describe("Configuration and Constants", () => {
   test("should validate theme options", () => {
     const validThemes = ["light", "dark"];
 
-    validThemes.forEach(theme => {
+    validThemes.forEach((theme) => {
       expect(["light", "dark"]).toContain(theme);
     });
   });

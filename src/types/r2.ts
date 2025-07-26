@@ -25,7 +25,7 @@ export interface R2ListOptions {
   prefix?: string;
   cursor?: string;
   limit?: number;
-  include?: ('httpMetadata' | 'customMetadata')[];
+  include?: ("httpMetadata" | "customMetadata")[];
 }
 
 export interface R2ListResult {
